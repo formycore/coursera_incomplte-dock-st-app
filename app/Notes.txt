@@ -1,0 +1,92 @@
+# start the docker deamon
+- sudo dockerd
+- it says API listen on /var/run/docker.sock
+# there is a full directory project for the docker 
+- docker-full-stack-app
+- docker compose-up
+- MongoDb completed
+- on the browser 
+- localhost:3000
+- docker-compose down
+# to remove the docker images
+docker rmi -f $(docker images -aq)
+docker system prune --volumes -a
+--------------------------------------------------------
+craft a simple Dockerfile
+cd incomplete-docker-full-stack-app(actually there are 2 folders)
+- in the index.js file under line 12, after mangooes.connect('',xxxx) and in the line 40 const port=''
+- create a Dockerfile
+- check in the hub.docker.com node
+- in that check for lts (latest version of the lts node)
+##########################################################################################
+FROM node:lts
+# copy the project files from the working directory
+COPY . . #first dot is where we are so it out current directory and the second dot is in actualy directory of the container
+# so we once build this up it will copy all the contents from the local working directory to over inside the container
+# to get app installed we need 
+RUN npm install
+EXPOSE 3000
+CMD["npm", "start"]
+##########################################################################################
+now 
+docker build . -t nodejs_app:v1
+------------------------------------------------
+Cache docker
+- now change the values in the index.js file
+- at the line 44 change the value 'i will not run ' to 'samantha is good looking'
+- at the line 40 add the port as 3000
+- docker build -t nodejs_app:v2 .
+- now if package.json changes then only dependencies from the npm install
+- now change the Dockerfile
+#########################################################################################
+FROM node:lts
+COPY the package*.json ./
+RUN npm install
+# only if ther is a change in the package.json and package-lock.json files 
+# it will run the even before checking the changes in the content of the local files or changes in the current working directory
+COPY . .
+EXPOSE 3000
+CMD ["npm", "start"]
+################################################################
+- from the previous docker file, there was like copy then npm install right
+- it is taking the some time, so instead we use the above dockerfile 
+- if it senses the cache version with no changes to the package* files, hence the reduced rebuild stage
+- like RUN npm install
+- installing all the dependencies all over again 
+- change the index.js again with 'samantha is good looking,dances very well'
+- now run the docker build -t nodejs_app:v3 .
+- if we see the logs it will show that we have Using cache in the steps of Copy package* and RUN npm install
+---------------------------------------------------------------------------------------------------------
+3) Look inside the container
+- docker run -it image bash
+- if we see all the files are there on the root with non organized
+- so we use the WORKDIR command
+- so that all the project files should be in the same directory
+#########################################################################################################################
+FROM node:lts
+WORKINGDIR /usr/src/app
+COPY package*.json ./
+COPY . .
+RUN npm install
+EXPOSE 3000
+CMD ["npm", "start"]
+#########################################################################################################################
+- docker build -t nodejs_app:v4 .
+- docker run -it image_id bash
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
